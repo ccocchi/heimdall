@@ -1,0 +1,99 @@
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.App-header {
+  text-align: center;
+  background-color: rgb(97, 205, 187);
+  height: 60px;
+  padding: 20px;
+  color: white;
+}
+
+.App-title {
+  font-size: 1.5em;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+.main-container {
+  width: 1280px;
+  margin: 0 auto;
+  padding: 10px 25px;
+}
+
+.time-ranges {
+  display: flex;
+  flex-direction: row;
+}
+
+.time-ranges > div {
+  padding: 0 10px;
+}
+
+.time-ranges > div.selected {
+  color: rgb(97, 205, 187);
+  text-decoration: underline;
+}
+
+.transactions {
+  position: relative;
+  width: 500px;
+  margin-top: 20px;
+}
+
+.transactions .header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.transactions h3 {
+  display: inline-block;
+  margin: 15px 0 10px;
+}
+
+.transactions .column-name {
+  color: #888;
+  display: inline-block;
+  font-size: 0.9em;
+  margin-top: 18px;
+}
+
+.transaction-line {
+  position: relative;
+  overflow: hidden;
+  width: 500px;
+  height: 30px;
+  line-height: 30px;
+  background-color: rgb(178, 195, 192, 0.3);
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.ratio-line {
+  background-color: rgb(97, 205, 187);
+  height: 30px;
+  z-index: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 5px;
+}
+
+.transaction-line .content {
+  color: #333;
+  z-index: 100;
+  padding: 0 5px;
+  position: absolute;
+  width: calc(100% - 10px);
+  display: flex;
+  justify-content: space-between;
+}
+
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
