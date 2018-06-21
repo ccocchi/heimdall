@@ -1,5 +1,5 @@
 {
-  "name": "tyr",
+  "name": "heimdall_apm",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

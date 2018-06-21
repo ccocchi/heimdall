@@ -21,3 +21,9 @@ src/css/dist
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+.bundle/
+.yardoc
+coverage/
+doc/
+tmp/
