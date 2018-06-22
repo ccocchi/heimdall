@@ -5,7 +5,7 @@ module HeimdallApm
   #
   class AgentContext
     def vault
-      @vault ||= ::HeimdallApm::Vault.new
+      @vault ||= ::HeimdallApm::Vault.new(self)
     end
 
     def recorder

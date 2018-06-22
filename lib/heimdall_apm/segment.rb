@@ -30,12 +30,19 @@ module HeimdallApm
       children << segment
     end
 
+    # Entry point for visitors depth-first style: start by visiting `self` then
+    # visit all of its children
+    def accept(visitor)
+      visitor.visit(self)
+      @children.each { |c| c.accept(visitor) } if @children
+    end
+
     def record_stop_time
       @stop_time = Process.clock_gettime(Process::CLOCK_REALTIME)
     end
 
     def total_call_time
-      stop_time - start_time
+      @total_call_time ||= stop_time - start_time
     end
 
     def total_exclusive_time

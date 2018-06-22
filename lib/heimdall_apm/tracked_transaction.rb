@@ -9,11 +9,17 @@ module HeimdallApm
     # Recorder used to process transaction data
     attr_reader :recorder
 
-    def initialize(vault)
-      @vault        = vault
+    # Scope of this transaction (controller routes / job id)
+    attr_accessor :scope
+
+    def initialize(context)
+      @context      = context
       @root_segment = nil
       @segments     = []
-      @recorder     = vault.recorder
+      @scope        = nil
+
+      @recorder     = context.recorder
+      @vault        = context.vault
     end
 
     def start_segment(segment)
@@ -36,6 +42,20 @@ module HeimdallApm
     # transaction
     def current_segment
       @segments[-1]
+    end
+
+    VISITORS = {
+      metrics: ::HeimdallApm::Visitors::RequestMetricsVisitor
+    }
+
+    def record
+      return unless root_segment
+
+      VISITORS.each do |_, klass|
+        visitor = klass.new(@vault, @scope)
+        root_segment.accept(visitor)
+        visitor.store_in_vault
+      end
     end
 
     private
