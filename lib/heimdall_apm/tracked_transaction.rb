@@ -1,4 +1,5 @@
 require 'heimdall/visitors/request_metrics_visitor'
+require 'heimdall/visitors/pretty_print_visitor'
 
 module HeimdallApm
   # A TrackedTransaction is a collection of segments.
@@ -63,6 +64,12 @@ module HeimdallApm
     end
 
     private
+
+    def pretty_print
+      visitor = HeimdallApm::Visitors::PrettyPrintVisitor.new(@scope)
+      root_segment.accept(visitor)
+      visitor.store_in_vault
+    end
 
     # Send the request off to be stored
     def stop_request
