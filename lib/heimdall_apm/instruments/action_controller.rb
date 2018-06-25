@@ -1,9 +1,9 @@
 module HeimdallApm
-  module ActiveRecord
+  module ActionController
     class Subscriber
       def start(name, id, payload)
         txn     = ::HeimdallApm::TransactionManager.current
-        segment = ::HeimdallApm::Segment.new('ActiveRecord'.freeze, name)
+        segment = ::HeimdallApm::Segment.new('Controller'.freeze, )
         txn.start_segment(segment)
       end
 
@@ -15,7 +15,6 @@ module HeimdallApm
   end
 end
 
-ActiveSupport::Notifications.subscribe(
-  'sql.active_record',
-  ::HeimdallApm::ActiveRecord::Subscriber.new
-)
+
+
+process_action.action_controller

@@ -34,9 +34,11 @@ module HeimdallApm
     # visit all of its children
     def accept(visitor)
       visitor.visit(self)
-      visitor.before_children if visitor.respond_to?(:before_children)
-      @children.each { |c| c.accept(visitor) } if @children
-      visitor.after_children if visitor.respond_to?(:after_children)
+      if @children
+        visitor.before_children# if visitor.respond_to?(:before_children)
+        @children.each { |c| c.accept(visitor) }
+        visitor.after_children# if visitor.respond_to?(:after_children)
+      end
     end
 
     def record_stop_time

@@ -1,5 +1,5 @@
 require 'thread'
-require 'heimdall/metrics_set'
+require 'heimdall_apm/metrics_set'
 
 module HeimdallApm
   # Keeps in RAM one or more minute's worth of metrics.
@@ -9,7 +9,7 @@ module HeimdallApm
     def initialize(context)
       @context  = context
       @lock     = Mutex.new
-      @spans    = Hash.new { |h, k| h[k] Span.new(k, @context) }
+      @spans    = Hash.new { |h, k| h[k] = Span.new(k, @context) }
     end
 
     def current_span

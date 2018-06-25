@@ -1,4 +1,4 @@
-require 'heimdall/tracked_transaction'
+require 'heimdall_apm/tracked_transaction'
 
 module HeimdallApm
   # Handles the thread-local variable holding the current tracked transaction,

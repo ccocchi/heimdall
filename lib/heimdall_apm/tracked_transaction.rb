@@ -1,5 +1,5 @@
-require 'heimdall/visitors/request_metrics_visitor'
-require 'heimdall/visitors/pretty_print_visitor'
+require 'heimdall_apm/visitors/request_metrics_visitor'
+require 'heimdall_apm/visitors/pretty_print_visitor'
 
 module HeimdallApm
   # A TrackedTransaction is a collection of segments.
@@ -53,6 +53,7 @@ module HeimdallApm
 
     def record
       return unless root_segment
+      return pretty_print
 
       VISITORS.each do |_, klass|
         visitor = klass.new(@vault, @scope)
@@ -60,7 +61,7 @@ module HeimdallApm
         visitor.store_in_vault
       end
 
-      pretty_print if instant?
+      # pretty_print if instant?
     end
 
     private

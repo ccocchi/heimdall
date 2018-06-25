@@ -20,7 +20,7 @@ module HeimdallApm
       end
 
       def visit(segment)
-        pprint("#{segment.type}/#{segment.name}")
+        pprint("#{segment.type}/#{segment.name}\n")
       end
 
       def store_in_vault

@@ -11,8 +11,8 @@ module HeimdallApm
       end
 
       def visit(segment)
-        name = ::HeimdallApm::MetricName.new(segment.type, segment.name, scope)
-        @metrics[name] ||= ::HeimdallApm::MetricStats.new(scoped: scope != nil)
+        name = ::HeimdallApm::MetricName.new(segment.type, segment.name, @scope)
+        @metrics[name] ||= ::HeimdallApm::MetricStats.new(scoped: @scope != nil)
 
         stat = @metrics[name]
         stat.update(total_call_time, total_exclusive_time)

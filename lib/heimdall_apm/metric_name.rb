@@ -2,6 +2,8 @@ module HeimdallApm
   # Metric name used in visitor's metrics hash
   #
   class MetricName
+    attr_reader :type, :name, :scope
+
     def initialize(type, name, scope = nil)
       @type   = type
       @name   = name
