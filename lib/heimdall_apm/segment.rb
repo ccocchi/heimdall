@@ -11,14 +11,20 @@ module HeimdallApm
     # Start and stop of this segment
     attr_reader :start_time, :stop_time
 
+    attr_accessor :data
+
     # TODO: add annotations to the segment for custom data
     # attr_reader :annotations
 
     def initialize(type, name, start_time = nil)
       @type       = type
       @name       = name
-      @start_time = start_time || Process.clock_gettime(Process::CLOCK_REALTIME)
+      @start_time = start_time
       @children   = nil
+    end
+
+    def start
+      @start_time = Process.clock_gettime(Process::CLOCK_REALTIME)
     end
 
     # Lazy initialization of children to avoid bloating leaf segments

@@ -3,7 +3,10 @@ module HeimdallApm
     class Subscriber
       def start(name, id, payload)
         txn     = ::HeimdallApm::TransactionManager.current
-        segment = ::HeimdallApm::Segment.new('Controller'.freeze, )
+        scope   = -"#{payload[:controller]}/#{payload[:action]}"
+
+        txn.scope = scope unless txn.scope
+        segment = ::HeimdallApm::Segment.new('Controller'.freeze, scope)
         txn.start_segment(segment)
       end
 
@@ -15,6 +18,7 @@ module HeimdallApm
   end
 end
 
-
-
-process_action.action_controller
+ActiveSupport::Notifications.subscribe(
+  'process_action.action_controller',
+  ::HeimdallApm::ActionController::Subscriber.new
+)

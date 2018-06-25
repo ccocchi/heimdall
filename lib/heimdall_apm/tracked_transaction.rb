@@ -28,6 +28,7 @@ module HeimdallApm
     def start_segment(segment)
       @root_segment = segment unless @root_segment
       @segments.push(segment)
+      segment.start
     end
 
     def stop_segment

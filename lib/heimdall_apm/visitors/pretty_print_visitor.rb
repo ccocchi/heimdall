@@ -8,7 +8,7 @@ module HeimdallApm
         @io     = File.open('log/heimdall_apm.log', 'ab')
         at_exit { @io.close }
 
-        pprint("Request #{scope}:\n")
+        pprint("Request #{@scope}:\n")
       end
 
       def before_children
