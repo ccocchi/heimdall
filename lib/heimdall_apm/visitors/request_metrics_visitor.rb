@@ -1,3 +1,6 @@
+require 'heimdall_apm/metric_name'
+require 'heimdall_apm/metric_stats'
+
 module HeimdallApm
   module Visitors
     class RequestMetricsVisitor

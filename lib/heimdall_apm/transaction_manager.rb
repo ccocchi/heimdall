@@ -1,9 +1,11 @@
+require 'heimdall/tracked_transaction'
+
 module HeimdallApm
   # Handles the thread-local variable holding the current tracked transaction,
   # populating it the first time it is accessed.
   #
   class TransactionManager
-    def self.get
+    def self.current
       find || create
     end
 

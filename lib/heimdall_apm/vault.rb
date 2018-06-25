@@ -1,4 +1,5 @@
 require 'thread'
+require 'heimdall/metrics_set'
 
 module HeimdallApm
   # Keeps in RAM one or more minute's worth of metrics.

@@ -1,3 +1,5 @@
+require 'heimdall_apm/agent_context'
+
 module HeimdallApm
   # Main entry point for HeimdallApm. Only one instance is created per ruby
   # process, and it manages the lifecycle of the monitoring

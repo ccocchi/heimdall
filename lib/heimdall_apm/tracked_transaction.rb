@@ -1,3 +1,5 @@
+require 'heimdall/visitors/request_metrics_visitor'
+
 module HeimdallApm
   # A TrackedTransaction is a collection of segments.
   #
@@ -56,6 +58,8 @@ module HeimdallApm
         root_segment.accept(visitor)
         visitor.store_in_vault
       end
+
+      pretty_print if instant?
     end
 
     private

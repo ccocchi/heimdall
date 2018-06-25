@@ -1,3 +1,6 @@
+require 'heimdall_apm/vault'
+require 'heimdall_apm/recorder'
+
 module HeimdallApm
   # Global context in which the agent is run. One context is assigned per
   # agent. It contains most of the part that are going to be accessed globally
