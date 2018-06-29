@@ -11,7 +11,12 @@ module HeimdallApm
 
     def self.find
       req = Thread.current[:heimdall_request]
-      req
+
+      if !req || req.stopped?
+        nil
+      else
+        req
+      end
     end
 
     def self.create

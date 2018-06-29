@@ -12,7 +12,7 @@ module HeimdallApm
 
     def hash
       h = type.hash ^ name.hash
-      h ^= scope.hash if hash
+      h ^= scope.hash if scope
       h
     end
   end

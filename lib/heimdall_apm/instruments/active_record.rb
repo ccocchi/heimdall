@@ -3,7 +3,7 @@ module HeimdallApm
     class Subscriber
       def start(name, id, payload)
         txn     = ::HeimdallApm::TransactionManager.current
-        segment = ::HeimdallApm::Segment.new('ActiveRecord'.freeze, name)
+        segment = ::HeimdallApm::Segment.new('Sql'.freeze, name)
         segment.data = payload[:sql]
 
         txn.start_segment(segment)

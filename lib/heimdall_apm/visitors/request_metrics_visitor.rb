@@ -3,25 +3,33 @@ require 'heimdall_apm/metric_stats'
 
 module HeimdallApm
   module Visitors
+    # Extract metrics for a given transaction
+    #
     class RequestMetricsVisitor
-      def initialize(vault, scope = nil)
-        @vault    = vault
-        @scope    = scope
-        @metrics  = {}
+      attr_reader :metrics
+
+      def initialize(vault, transaction)
+        @transaction = transaction
+        @vault   = vault
+        @metrics = {}
       end
 
       def visit(segment)
-        name = ::HeimdallApm::MetricName.new(segment.type, segment.name, @scope)
-        @metrics[name] ||= ::HeimdallApm::MetricStats.new(scoped: @scope != nil)
+        name = ::HeimdallApm::MetricName.new(segment.type, segment.name)
+        @metrics[name] ||= ::HeimdallApm::MetricStats.new
 
         stat = @metrics[name]
-        stat.update(total_call_time, total_exclusive_time)
+        stat.update(segment.total_call_time, segment.total_exclusive_time)
       end
 
       def store_in_vault
-        @vault.store(@metrics)
+        timestamp = @transaction.root_segment.stop_time
+        @vault.store_transaction_metrics(@transaction.scope, timestamp, metrics)
       end
 
+      private def request_metric_name
+        @request_metric_name ||= ::HeimdallApm::MetricName.new('Request'.freeze, 'total'.freeze)
+      end
     end
   end
 end

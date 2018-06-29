@@ -11,10 +11,9 @@ module HeimdallApm
     # Start and stop of this segment
     attr_reader :start_time, :stop_time
 
+    # Additional data linked to the segment (for example SQL or Elastic queries).
+    # Can be left nil.
     attr_accessor :data
-
-    # TODO: add annotations to the segment for custom data
-    # attr_reader :annotations
 
     def initialize(type, name, start_time = nil)
       @type       = type
@@ -41,9 +40,9 @@ module HeimdallApm
     def accept(visitor)
       visitor.visit(self)
       if @children
-        visitor.before_children# if visitor.respond_to?(:before_children)
+        visitor.before_children if visitor.respond_to?(:before_children)
         @children.each { |c| c.accept(visitor) }
-        visitor.after_children# if visitor.respond_to?(:after_children)
+        visitor.after_children if visitor.respond_to?(:after_children)
       end
     end
 

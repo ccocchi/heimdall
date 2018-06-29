@@ -1,5 +1,5 @@
 require 'thread'
-require 'heimdall_apm/metrics_set'
+require 'heimdall_apm/points_collection'
 
 module HeimdallApm
   # Keeps in RAM one or more minute's worth of metrics.
@@ -16,11 +16,14 @@ module HeimdallApm
       @spans[current_timestamp]
     end
 
-    def store(metrics)
-      @lock.synchronize { current_span.absorb_metrics(metrics) }
+    def retrieve_and_delete_previous_span
+      timestamp = current_timestamp - 60
+      @lock.synchronize { @spans.delete(timestamp) }
     end
 
-    private
+    def store_transaction_metrics(scope, timestamp, metrics)
+      @lock.synchronize { current_span.add_point(scope, timestamp, metrics) }
+    end
 
     def current_timestamp
       time = Time.now.utc
@@ -30,15 +33,17 @@ module HeimdallApm
 
   # One span of storage
   class Span
-    def initialize(timestamp, context)
-      @timestamp    = timestamp
-      @context      = context
+    attr_reader :points_collection
 
-      @metrics_set  = ::HeimdallApm::MetricsSet.new
+    def initialize(timestamp, context)
+      @timestamp = timestamp
+      @context   = context
+
+      @points_collection = ::HeimdallApm::PointsCollection.new('test'.freeze)
     end
 
-    def absorb_metrics(metrics)
-      @metrics_set.absorb_all(metrics)
+    def add_point(scope, timestamp, metrics)
+      @points_collection.append(scope, timestamp, metrics)
     end
   end
 end

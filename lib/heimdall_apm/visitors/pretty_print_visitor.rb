@@ -21,6 +21,9 @@ module HeimdallApm
 
       def visit(segment)
         pprint("#{segment.type}/#{segment.name}\n")
+        @indent += 2
+        pprint("duration=#{segment.total_exclusive_time}ms\n")
+        @indent -= 2
       end
 
       def store_in_vault

@@ -4,9 +4,9 @@ module HeimdallApm
       def start(name, id, payload)
         txn     = ::HeimdallApm::TransactionManager.current
         scope   = -"#{payload[:controller]}/#{payload[:action]}"
+        segment = ::HeimdallApm::Segment.new('Controller'.freeze, scope)
 
         txn.scope = scope unless txn.scope
-        segment = ::HeimdallApm::Segment.new('Controller'.freeze, scope)
         txn.start_segment(segment)
       end
 

@@ -20,6 +20,7 @@ module HeimdallApm
       @root_segment = nil
       @segments     = []
       @scope        = nil
+      @stopped      = false
 
       @recorder     = context.recorder
       @vault        = context.vault
@@ -54,15 +55,17 @@ module HeimdallApm
 
     def record
       return unless root_segment
-      return pretty_print
+      # return pretty_print
 
       VISITORS.each do |_, klass|
-        visitor = klass.new(@vault, @scope)
+        visitor = klass.new(@vault, self)
         root_segment.accept(visitor)
         visitor.store_in_vault
       end
+    end
 
-      # pretty_print if instant?
+    def stopped?
+      @stopped
     end
 
     private
@@ -75,6 +78,7 @@ module HeimdallApm
 
     # Send the request off to be stored
     def stop_request
+      @stopped = true
       recorder.record(self) if recorder
     end
 
