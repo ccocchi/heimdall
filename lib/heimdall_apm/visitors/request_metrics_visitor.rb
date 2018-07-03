@@ -24,11 +24,7 @@ module HeimdallApm
 
       def store_in_vault
         timestamp = @transaction.root_segment.stop_time
-        @vault.store_transaction_metrics(@transaction.scope, timestamp, metrics)
-      end
-
-      private def request_metric_name
-        @request_metric_name ||= ::HeimdallApm::MetricName.new('Request'.freeze, 'total'.freeze)
+        @vault.store_transaction_metrics(@transaction, metrics)
       end
     end
   end

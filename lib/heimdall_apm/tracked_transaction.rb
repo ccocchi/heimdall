@@ -6,6 +6,9 @@ module HeimdallApm
   #
   class TrackedTransaction
 
+    WEB_MODE = 1
+    JOB_MODE = 2
+
     # First segment added to the transaction
     attr_reader :root_segment
 
@@ -21,6 +24,7 @@ module HeimdallApm
       @segments     = []
       @scope        = nil
       @stopped      = false
+      @mode         = nil
 
       @recorder     = context.recorder
       @vault        = context.vault
@@ -29,6 +33,16 @@ module HeimdallApm
     def start_segment(segment)
       @root_segment = segment unless @root_segment
       @segments.push(segment)
+
+      # TODO: maybe use a visitor to check that at the end of the request intead
+      @mode ||=
+        case segment.type
+        when 'Controller' then WEB_MODE
+        when 'Job'        then JOB_MODE
+        else
+          nil
+        end
+
       segment.start
     end
 
@@ -66,6 +80,14 @@ module HeimdallApm
 
     def stopped?
       @stopped
+    end
+
+    def web?
+      @mode == WEB_MODE
+    end
+
+    def job?
+      @mode == JOB_MODE
     end
 
     private

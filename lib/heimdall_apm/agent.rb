@@ -51,17 +51,16 @@ module HeimdallApm
 
         if now < next_time
           remaining = next_time - now
-          HeimdallApm.logger.info "Sleeping for #{remaining}"
+          HeimdallApm.logger.debug "Sleeping for #{remaining}"
           sleep(remaining)
           next
         end
 
-        HeimdallApm.logger.info "Reporting..."
         reporting.call
         next_time = now + DEFAULT_PUSH_INTERVAL
       end
     rescue => e
-      HeimdallApm.logger.info e.message
+      HeimdallApm.logger.error e.message
     end
   end
 end

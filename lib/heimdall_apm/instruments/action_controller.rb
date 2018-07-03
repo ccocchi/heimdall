@@ -3,7 +3,7 @@ module HeimdallApm
     class Subscriber
       def start(name, id, payload)
         txn     = ::HeimdallApm::TransactionManager.current
-        scope   = -"#{payload[:controller]}/#{payload[:action]}"
+        scope   = -"#{payload[:controller]}##{payload[:action]}"
         segment = ::HeimdallApm::Segment.new('Controller'.freeze, scope)
 
         txn.scope = scope unless txn.scope

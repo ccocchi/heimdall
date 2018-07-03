@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'set'
 
 module HeimdallApm
@@ -12,9 +14,8 @@ module HeimdallApm
     # else will be label as Ruby.
     ROOT_METRICS = Set.new(['Sql', 'Elastic', 'Redis'])
 
-    def initialize(series_name)
-      @series_name  = series_name
-      @points       = []
+    def initialize
+      @points = []
     end
 
     def empty?
@@ -22,12 +23,14 @@ module HeimdallApm
     end
 
     def to_a
-      HeimdallApm.logger.info @points.inspect
       @points
     end
 
-    def append(scope, timestamp, metrics)
-      values = Hash.new { |h, k| h[k] = 0 }
+    def append(txn, metrics)
+      scope       = txn.scope
+      timestamp   = txn.root_segment.stop_time
+      series_name = txn.web? ? 'app' : 'job'
+      values      = Hash.new { |h, k| h[k] = 0 }
 
       metrics.each do |meta, stat|
         if ROOT_METRICS.include?(meta.type)
@@ -36,12 +39,12 @@ module HeimdallApm
         else
           values['ruby_time'] += stat.total_exclusive_time
         end
-        
-        values['request_time'] += stat.total_exclusive_time
+
+        values['total_time'] += stat.total_exclusive_time
       end
 
       @points << {
-        series: @series_name,
+        series: series_name,
         timestamp: (timestamp * 1000).to_i,
         tags: { endpoint: scope },
         values: values

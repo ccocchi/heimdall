@@ -21,8 +21,8 @@ module HeimdallApm
       @lock.synchronize { @spans.delete(timestamp) }
     end
 
-    def store_transaction_metrics(scope, timestamp, metrics)
-      @lock.synchronize { current_span.add_point(scope, timestamp, metrics) }
+    def store_transaction_metrics(txn, metrics)
+      @lock.synchronize { current_span.add_point(txn, metrics) }
     end
 
     def current_timestamp
@@ -39,11 +39,11 @@ module HeimdallApm
       @timestamp = timestamp
       @context   = context
 
-      @points_collection = ::HeimdallApm::PointsCollection.new('test'.freeze)
+      @points_collection = ::HeimdallApm::PointsCollection.new
     end
 
-    def add_point(scope, timestamp, metrics)
-      @points_collection.append(scope, timestamp, metrics)
+    def add_point(txn, metrics)
+      @points_collection.append(txn, metrics)
     end
   end
 end

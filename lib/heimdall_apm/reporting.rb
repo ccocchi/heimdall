@@ -13,7 +13,7 @@ module HeimdallApm
       if span && !span.points_collection.empty?
         influx.write_points(span.points_collection.to_a)
       else
-        HeimdallApm.logger.info "Nothing to report"
+        HeimdallApm.logger.debug "Nothing to report"
       end
     rescue => e
       HeimdallApm.logger.error "#{e.message} during reporting to InfluxDB"
