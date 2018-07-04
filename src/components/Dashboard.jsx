@@ -1,4 +1,5 @@
-import React from 'react'
+import React from 'react';
+import TransactionsPanel from './TransactionsPanel';
 
 const data = [
   {
@@ -44,23 +45,7 @@ const data = [
 ]
 const max = 5399
 
-class TransactionLine extends React.Component {
-  occupationPercent = () => {
-    return (this.props.avg_time / this.props.max) * 100;
-  }
 
-  render() {
-    return (
-      <div className="transaction-line">
-        <div className="ratio-line" style={{ width: `${this.occupationPercent()}%`}}></div>
-        <div className="content">
-          {this.props.endpoint}
-          <div className="value">{this.props.avg_time}ms</div>
-        </div>
-      </div>
-    );
-  }
-}
 
 class Dashboard extends React.Component {
   render() {
@@ -75,17 +60,14 @@ class Dashboard extends React.Component {
           </ul>
         </div>
         <div className="content">
-          <h3>Transactions</h3>
-
-          <select id="orderBy">
-            <option selected>Slowest query time</option>
-            <option>Most time consuming</option>
-          </select>
-
-          <div className="transactions">
-            {data.map(c => <TransactionLine {...c} max={max} key={c.avg_time} />)}
-          </div>
-
+          <TransactionsPanel
+            data={data}
+            max={max}
+            sortValues={{
+              slowest: 'Slowest query time',
+              consuming: 'Most time consuming'
+            }}
+          />
         </div>
       </div>
       // <div className="App">
