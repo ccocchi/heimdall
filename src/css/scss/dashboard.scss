@@ -56,9 +56,19 @@
 
   .panel-right {
     padding-top: 55px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
+    // display: flex;
+    // flex-wrap: wrap;
+    // flex-direction: column;
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+    }
+
+    .row__numbers {
+      margin-bottom: 40px;
+    }
   }
 
   .card__number {
@@ -82,6 +92,16 @@
     width: 100%;
     display: block;
     height: 200px;
+    padding-bottom: 30px;
+    margin-bottom: 30px;
+
+    .card-title {
+      color: #797979;
+      font-weight: 300;
+      text-transform: uppercase;
+      margin-bottom: 15px;
+      margin-left: 10px;
+    }
   }
 }
 
@@ -160,6 +180,10 @@
   @include background-opacity($beach_storm, 0.1);
   // border-radius: 5px;
   margin-bottom: 10px;
+
+  &.current {
+    border: 2px solid $giant_goldfish;
+  }
 }
 
 .ratio-line {

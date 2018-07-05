@@ -67,6 +67,8 @@ class QueryBuilder
 end
 
 class ResultsParser
+  RANGE = 5..-1
+
   def initialize(results, opts = {})
     @results = results
     @opts    = opts
@@ -96,6 +98,9 @@ class ResultsParser
     # Not needed for the moment (could be removed via the query direcly)
     series.delete('mean_total_time'.freeze)
     throughput = [{ id: 'throughput'.freeze, data: series.delete('count'.freeze) }]
+
+    # mean_ruby_time => ruby
+    series.keys.each { |k| series[k.split('_'.freeze)[1]] = series.delete(k) }
 
     result = []
     series.each { |id, data| result << { id: id, data: data } }

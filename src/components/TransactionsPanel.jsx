@@ -1,5 +1,5 @@
 import React from 'react';
-import moment from 'moment';
+import classnames from 'classnames';
 
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -10,7 +10,7 @@ import CardNumber from './CardNumber';
 import CardChart from './CardChart';
 
 import { fetchFromAPI } from '../api';
-import { isEmpty, valueSortFn } from '../utils';
+import { isEmpty, valueSortFn, convertTimeValuesFn } from '../utils';
 
 class TransactionLine extends React.Component {
   occupationPercent = () => {
@@ -18,8 +18,10 @@ class TransactionLine extends React.Component {
   }
 
   render() {
+
+
     return (
-      <div className="transaction-line">
+      <div className={classnames("transaction-line", { current: this.props.current })} onClick={this.props.refreshFn(this.props.endpoint)}>
         <div className="ratio-line" style={{ width: `${this.occupationPercent()}%`}}></div>
         <div className="content">
           {this.props.endpoint}
@@ -35,10 +37,13 @@ class TransactionsPanel extends React.Component {
     super(props);
     this.state = {
       sortValue: Object.keys(props.sortValues)[0],
-      currentDetails: null,
+      currentEndpoint: null,
       unit: 'ms',
       data: [],
-      chartData: null,
+      detailsData: {
+        breakdownData: null,
+        throughputData: null
+      },
       max: 0
     };
   }
@@ -63,13 +68,18 @@ class TransactionsPanel extends React.Component {
     this.refreshData(value);
   }
 
-  async refreshPanel(sortBy) {
-  }
+  refreshDetails = endpoint => async () => {
+    const chartData       = await fetchFromAPI('/transactions/details', { endpoint: endpoint });
+    const breakdownData   = chartData.times.map(series => convertTimeValuesFn(series))
+    const throughputData  = chartData.throughput.map(series => convertTimeValuesFn(series))
 
-  async refreshList(sortBy) {
-  }
-
-  async refreshDetails(endpoint) {
+    this.setState({
+      currentEndpoint: endpoint,
+      detailsData: {
+        breakdownData: breakdownData,
+        throughputData: throughputData,
+      }
+    });
   }
 
   async refreshData(sortBy) {
@@ -77,15 +87,22 @@ class TransactionsPanel extends React.Component {
     const data      = raw_data.sort(valueSortFn).slice(0, 15)
     const maxValue  = data.reduce((res, { value }) => value > res ? value : res, 0);
 
-    const currentDetails  = data[0].endpoint;
-    const chartData       = await fetchFromAPI('/transactions/details', { endpoint: currentDetails });
-    const timesData       = chartData.times.map(({id, data}) => {
-      return { id: id, data: data.map(({x, y}) => {
-        return { x: moment(x).format('HH:mm'), y: y }
-      }) }
-    })
+    const currentEndpoint = data[0].endpoint;
+    const chartData       = await fetchFromAPI('/transactions/details', { endpoint: currentEndpoint });
 
-    this.setState({ data: data, max: maxValue, currentDetails: currentDetails, chartData: timesData, unit: this.unitForSort(sortBy) })
+    const breakdownData   = chartData.times.map(series => convertTimeValuesFn(series))
+    const throughputData  = chartData.throughput.map(series => convertTimeValuesFn(series))
+
+    this.setState({
+      data: data,
+      max: maxValue,
+      currentEndpoint: currentEndpoint,
+      detailsData: {
+        breakdownData: breakdownData,
+        throughputData: throughputData,
+      },
+      unit: this.unitForSort(sortBy)
+    })
   }
 
   componentDidMount() {
@@ -112,7 +129,7 @@ class TransactionsPanel extends React.Component {
 
   render() {
     const { sortValues } = this.props;
-    const { data, max, unit, chartData }  = this.state;
+    const { data, max, unit, detailsData:{breakdownData, throughputData} }  = this.state;
 
     return (
       <div className="panel panel__transactions">
@@ -122,14 +139,40 @@ class TransactionsPanel extends React.Component {
           { isEmpty(sortValues) ? null : this.renderSelect(sortValues) }
 
           <div className="transactions">
-            {data.map(c => <TransactionLine {...c} unit={unit} max={max} key={c.endpoint} />)}
+            {data.map(c =>
+              <TransactionLine
+                  {...c}
+                  unit={unit}
+                  max={max}
+                  key={c.endpoint}
+                  refreshFn={this.refreshDetails}
+                  current={c.endpoint === this.state.currentEndpoint}
+              />)}
           </div>
         </div>
         <div className="panel-right">
-          <CardNumber title="Avg response time" value="118ms" />
-          <CardNumber title="95th percentile" value="216ms" />
+          <div className="row row__numbers">
+            <CardNumber title="Avg response time" value="118ms" />
+            <CardNumber title="95th percentile" value="216ms" />
+          </div>
 
-          {chartData && <CardChart data={chartData} />}
+          {breakdownData &&
+            <CardChart
+                data={breakdownData}
+                guessXLabels
+                showLegend
+                enableArea
+                title="Transaction breakdown"
+                colors="pastel2"
+            />}
+
+          {throughputData &&
+            <CardChart
+                data={throughputData}
+                guessXLabels
+                title="Throughput"
+                colors="d320c"
+            />}
         </div>
       </div>
     )
