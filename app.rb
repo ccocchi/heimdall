@@ -47,6 +47,14 @@ class QueryBuilder
     SQL
   end
 
+  def transaction_details_kpis
+    <<-SQL
+    SELECT mean(total_time), percentile(total_time, 95)
+    FROM app
+    WHERE endpoint = #{escape(params[:endpoint])} AND time >= now() - 3h
+    SQL
+  end
+
   def transactions
     column = case params['sort_by']
     when 'slowest'    then 'mean(total_time)'
@@ -173,11 +181,17 @@ class MyApp < Sinatra::Base
     endpoint = params[:endpoint]
     return 400 unless endpoint
 
-    builder = QueryBuilder.new(params)
-    results = InfluxClient.instance.query(builder.transaction_details)
-    parser  = ResultsParser.new(results)
+    builder   = QueryBuilder.new(params)
+    results   = InfluxClient.instance.query(builder.transaction_details)
+    parser    = ResultsParser.new(results)
 
-    Oj.dump(parser.to_graph_series)
+    response  = parser.to_graph_series
+    results   = InfluxClient.instance.query(builder.transaction_details_kpis)
+    response.merge!(
+      (results.dig(0, 'values', 0) || {}).delete_if { |k, _| k == 'time'.freeze }
+                                         .transform_values!(&:round))
+
+    Oj.dump(response)
   end
 end
 

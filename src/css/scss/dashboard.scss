@@ -105,46 +105,25 @@
   }
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
-}
-
-.App-header {
-  text-align: center;
-  background-color: $pond_water;
-  height: 60px;
-  padding: 20px;
-  color: white;
-}
-
-.App-title {
-  font-size: 1.5em;
-}
-
-.App-intro {
-  font-size: large;
-}
-
 .main-container {
   width: 1280px;
   margin: 0 auto;
   padding: 10px 25px;
 }
 
-.time-ranges {
-  display: flex;
-  flex-direction: row;
-}
-
-.time-ranges > div {
-  padding: 0 10px;
-}
-
-.time-ranges > div.selected {
-  color: rgb(97, 205, 187);
-  text-decoration: underline;
-}
+// .time-ranges {
+//   display: flex;
+//   flex-direction: row;
+// }
+//
+// .time-ranges > div {
+//   padding: 0 10px;
+// }
+//
+// .time-ranges > div.selected {
+//   color: rgb(97, 205, 187);
+//   text-decoration: underline;
+// }
 
 .transactions {
   position: relative;
@@ -180,6 +159,7 @@
   @include background-opacity($beach_storm, 0.1);
   // border-radius: 5px;
   margin-bottom: 10px;
+  cursor: pointer;
 
   &.current {
     border: 2px solid $giant_goldfish;

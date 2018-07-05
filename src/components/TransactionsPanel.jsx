@@ -42,7 +42,9 @@ class TransactionsPanel extends React.Component {
       data: [],
       detailsData: {
         breakdownData: null,
-        throughputData: null
+        throughputData: null,
+        percentile: null,
+        mean: null
       },
       max: 0
     };
@@ -78,6 +80,8 @@ class TransactionsPanel extends React.Component {
       detailsData: {
         breakdownData: breakdownData,
         throughputData: throughputData,
+        mean: chartData.mean,
+        percentile: chartData.percentile
       }
     });
   }
@@ -100,6 +104,8 @@ class TransactionsPanel extends React.Component {
       detailsData: {
         breakdownData: breakdownData,
         throughputData: throughputData,
+        mean: chartData.mean,
+        percentile: chartData.percentile
       },
       unit: this.unitForSort(sortBy)
     })
@@ -129,7 +135,7 @@ class TransactionsPanel extends React.Component {
 
   render() {
     const { sortValues } = this.props;
-    const { data, max, unit, detailsData:{breakdownData, throughputData} }  = this.state;
+    const { data, max, unit, detailsData:{breakdownData, throughputData, mean, percentile} }  = this.state;
 
     return (
       <div className="panel panel__transactions">
@@ -152,8 +158,8 @@ class TransactionsPanel extends React.Component {
         </div>
         <div className="panel-right">
           <div className="row row__numbers">
-            <CardNumber title="Avg response time" value="118ms" />
-            <CardNumber title="95th percentile" value="216ms" />
+            <CardNumber title="Avg response time" value={`${mean || '-'} ms`} />
+            <CardNumber title="95th percentile" value={`${percentile || '-'} ms`} />
           </div>
 
           {breakdownData &&
