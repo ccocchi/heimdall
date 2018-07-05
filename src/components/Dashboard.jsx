@@ -62,7 +62,7 @@ class Dashboard extends React.Component {
         <div className="content">
           <TransactionsPanel
             sortValues={{
-              slowest: 'Slowest query time',
+              slowest: 'Slowest avg. query time',
               consuming: 'Most time consuming',
               throughput: 'Throughput'
             }}
