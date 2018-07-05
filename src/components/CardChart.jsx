@@ -29,7 +29,7 @@ class CardChart extends React.Component {
               "orient": "bottom",
               "tickSize": 5,
               "tickCount": 3,
-              "tickValues": ['13:00', '14:00', '15:00']
+              "tickValues": ['14:00', '15:00', '16:00']
             }}
             minY="auto"
         />

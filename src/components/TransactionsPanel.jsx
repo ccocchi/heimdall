@@ -1,5 +1,4 @@
 import React from 'react';
-import queryString from 'query-string';
 import moment from 'moment';
 
 import InputLabel from '@material-ui/core/InputLabel';
@@ -10,12 +9,8 @@ import Select from '@material-ui/core/Select';
 import CardNumber from './CardNumber';
 import CardChart from './CardChart';
 
-function isEmpty(value) {
-  return  value === undefined ||
-          value === null ||
-          (typeof value === "object" && Object.keys(value).length === 0) ||
-          (typeof value === "string" && value.trim().length === 0)
-}
+import { fetchFromAPI } from '../api';
+import { isEmpty, valueSortFn } from '../utils';
 
 class TransactionLine extends React.Component {
   occupationPercent = () => {
@@ -48,7 +43,7 @@ class TransactionsPanel extends React.Component {
     };
   }
 
-  unitForSort = (sort) => {
+  unitForSort = sort => {
     switch (sort) {
       case 'slowest':
         return 'ms';
@@ -64,48 +59,33 @@ class TransactionsPanel extends React.Component {
   handleSelectChange = event => {
     const value = event.target.value;
 
-    this.setState({ sortValue: value, unit: this.unitForSort(value) });
+    this.setState({ sortValue: value });
     this.refreshData(value);
   }
 
+  async refreshPanel(sortBy) {
+  }
+
+  async refreshList(sortBy) {
+  }
+
+  async refreshDetails(endpoint) {
+  }
+
   async refreshData(sortBy) {
-    const params        = { sort_by: sortBy }
-    const endpoint      = `http://0.0.0.0:4567/transactions?${queryString.stringify(params)}`
+    const raw_data  = await fetchFromAPI('/transactions', { sort_by: sortBy });
+    const data      = raw_data.sort(valueSortFn).slice(0, 15)
+    const maxValue  = data.reduce((res, { value }) => value > res ? value : res, 0);
 
-    const response      = await fetch(endpoint);
-    const unsorted_data = await response.json();
-
-    const sortFunction  = (a, b) => a.value === b.value ? 0 : (a.value > b.value ? -1 : 1)
-
-    let data;
-    if (sortBy === 'consuming') {
-      const total = unsorted_data.reduce((total, n) => total + n.value, 0)
-      const percent_data = unsorted_data.map(obj => {
-        const roundedValue = Math.round((obj.value / total) * 10000) / 100
-        return {...obj, value: roundedValue };
-      })
-
-      data = percent_data.sort(sortFunction).slice(0, 15);
-    } else {
-      data = unsorted_data.sort(sortFunction).slice(0, 15);
-    }
-
-    const max  = data.reduce((res, { value }) => value > res ? value : res, 0);
-
-    const currentDetails = data[0].endpoint;
-
-    const chartResponse  = await fetch(`http://0.0.0.0:4567/transactions/details?${queryString.stringify({endpoint: currentDetails})}`);
-    const chartData      = await chartResponse.json();
-
-    const timesData = chartData.times.map(({id, data}) => {
+    const currentDetails  = data[0].endpoint;
+    const chartData       = await fetchFromAPI('/transactions/details', { endpoint: currentDetails });
+    const timesData       = chartData.times.map(({id, data}) => {
       return { id: id, data: data.map(({x, y}) => {
         return { x: moment(x).format('HH:mm'), y: y }
       }) }
     })
 
-    console.log(timesData);
-
-    this.setState({ data: data, max: max, currentDetails: currentDetails, chartData: timesData })
+    this.setState({ data: data, max: maxValue, currentDetails: currentDetails, chartData: timesData, unit: this.unitForSort(sortBy) })
   }
 
   componentDidMount() {

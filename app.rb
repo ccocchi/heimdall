@@ -31,12 +31,49 @@ configure {
   set :bind, '0.0.0.0'
 }
 
-class ResultsParser
-  def initialize(results)
-    @results = results
+class QueryBuilder
+  attr_reader :params
+
+  def initialize(params)
+    @params = params
   end
 
-  # input: [{"name"=>"app", "tags"=>nil, "values"=>[{"time"=>"2018-07-05T09:45:00Z", "mean_elastic_time"=>292.4, "mean_ruby_time"=>12.4}]
+  def transaction_details
+    <<-SQL
+    SELECT mean(*), count(total_time)
+    FROM app
+    WHERE endpoint = #{escape(params[:endpoint])} AND time >= now() - 3h
+    GROUP BY time(15m)
+    SQL
+  end
+
+  def transactions
+    column = case params['sort_by']
+    when 'slowest'    then 'mean(total_time)'
+    when 'consuming'  then 'sum(total_time)'
+    when 'throughput' then 'count(total_time)'
+    end
+
+    <<-SQL
+    SELECT #{column} as value FROM app WHERE time >= now() - 3h GROUP BY endpoint
+    SQL
+  end
+
+  private
+
+  def escape(str)
+    "'#{str}'"
+  end
+end
+
+class ResultsParser
+  def initialize(results, opts = {})
+    @results = results
+    @opts    = opts
+  end
+
+  # input: [
+  #   {"name"=>"app", "tags"=>nil, "values"=>[{"time"=>"2018-07-05T09:45:00Z", "mean_elastic_time"=>292.4, "mean_ruby_time"=>12.4}]
   # output: [
   #  {"id"=>"mean_elastic_time", data: [{ "x": "2018-07-05T09:45:00Z", "y": 292.4}] },
   #  {"id"=>"mean_ruby_time", data: [{ "x": "2018-07-05T09:45:00Z", "y": 12.4}] }
@@ -65,6 +102,40 @@ class ResultsParser
 
     { throughput: throughput, times: result }
   end
+
+  # input: [{
+  #   "name"=>"app",
+  #   "tags"=>{"endpoint"=>"Influence::V1::HomeController#app_init"},
+  #   "values"=>[{"time"=>"2018-07-05T11:43:28.253378Z", "value"=>314.75384615384615}]}
+  # }]
+  #
+  # output: [{"endpoint"=>"Influence::V1::HomeController#app_init", "value"=>314.75}]
+  def to_transactions_list
+    result = @results.map do |point|
+      {
+        endpoint: point['tags']['endpoint'],
+        value: point['values'][0]['value']
+      }
+    end
+
+    case @opts[:mode]
+    when 'consuming'
+      total = result.sum { |h| h[:value] }
+      result.each { |h| h[:value] = (h[:value].fdiv(total) * 100).round(2) }
+    when 'throughput'
+      result.each { |h| h[:value] = h[:value].fdiv(minutes_per_period).round(2) }
+    else
+      result.each { |h| h[:value] = h[:value].round }
+    end
+
+    result
+  end
+
+  private
+
+  def minutes_per_period
+    180 # 60 * 3 until we make this dynamic
+  end
 end
 
 class MyApp < Sinatra::Base
@@ -86,39 +157,21 @@ class MyApp < Sinatra::Base
   end
 
   get '/transactions' do
-    column = case params['sort_by']
-    when 'slowest' then 'mean(total_time)'
-    when 'consuming' then 'sum(total_time)'
-    when 'throughput' then 'count(total_time)'
-    end
+    builder = QueryBuilder.new(params)
+    results = InfluxClient.instance.query(builder.transactions)
+    parser  = ResultsParser.new(results, mode: params['sort_by'])
 
-    query   = "select #{column} from app where time >= now() - 3h group by endpoint"
-    results = InfluxClient.instance.query(query)
-
-    results.map! do |point|
-      values = point['values'][0]
-      value  = values['mean'] || values['sum']
-
-      value  = value.round if value
-      value  ||= (values['count'] / 180.to_f).round(2)
-
-      {
-        endpoint: point['tags']['endpoint'],
-        value: value
-      }
-    end
-
-    Oj.dump(results)
+    Oj.dump(parser.to_transactions_list)
   end
 
   get '/transactions/details' do
     endpoint = params[:endpoint]
     return 400 unless endpoint
 
-    query = "select mean(*), count(total_time) from app where endpoint = '#{endpoint}' AND time >= now() - 3h group by time(15m)"
-    results = InfluxClient.instance.query(query)
+    builder = QueryBuilder.new(params)
+    results = InfluxClient.instance.query(builder.transaction_details)
+    parser  = ResultsParser.new(results)
 
-    parser = ResultsParser.new(results)
     Oj.dump(parser.to_graph_series)
   end
 end
