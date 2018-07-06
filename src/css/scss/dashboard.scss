@@ -54,6 +54,14 @@
   display: flex;
   justify-content: space-around;
 
+  .error-msg {
+    margin-top: 20px;
+    // color: #856404;
+    // background-color: #fff3cd;
+    // border-color: #ffeeba;
+    // padding: 5px 7px;
+  }
+
   .panel-right {
     padding-top: 55px;
     // display: flex;

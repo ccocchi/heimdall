@@ -46,7 +46,8 @@ class TransactionsPanel extends React.Component {
         percentile: null,
         mean: null
       },
-      max: 0
+      max: 0,
+      errorMsg: null
     };
   }
 
@@ -88,6 +89,12 @@ class TransactionsPanel extends React.Component {
 
   async refreshData(sortBy) {
     const raw_data  = await fetchFromAPI('/transactions', { sort_by: sortBy });
+
+    if (isEmpty(raw_data)) {
+      this.setState({ errorMsg: true });
+      return;
+    }
+
     const data      = raw_data.sort(valueSortFn).slice(0, 15)
     const maxValue  = data.reduce((res, { value }) => value > res ? value : res, 0);
 
@@ -107,7 +114,8 @@ class TransactionsPanel extends React.Component {
         mean: chartData.mean,
         percentile: chartData.percentile
       },
-      unit: this.unitForSort(sortBy)
+      unit: this.unitForSort(sortBy),
+      errorMsg: false
     })
   }
 
@@ -143,6 +151,8 @@ class TransactionsPanel extends React.Component {
           <h3>Transactions</h3>
 
           { isEmpty(sortValues) ? null : this.renderSelect(sortValues) }
+
+          { this.state.errorMsg ? <div className="error-msg">No data for selected period.</div> : null }
 
           <div className="transactions">
             {data.map(c =>
