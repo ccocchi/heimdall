@@ -7,6 +7,13 @@ module HeimdallApm
   # by the rest of the monitoring.
   #
   class AgentContext
+    # Global configuration object
+    attr_writer :config
+
+    def config
+      @config ||= ::HeimdallApm::Config.new
+    end
+
     def vault
       @vault ||= ::HeimdallApm::Vault.new(self)
     end

@@ -25,8 +25,25 @@ module HeimdallApm
       @stopped            = false
     end
 
-    def start
+    def install(options = {})
+      context.config = ::HeimdallApm::Config.new
+      start(options)
+    end
+
+    def start(options = {})
+      return unless context.config.value('enabled')
+
       @background_thread = Thread.new { background_run }
+
+      # TODO: use instruments manager
+      require 'heimdall_apm/instruments/active_record'      if defined?(ActiveRecord)
+      require 'heimdall_apm/instruments/action_controller'  if defined?(ActionController)
+
+      if (options[:app])
+        require 'heimdall_apm/instruments/middleware'
+        # TODO: make the position configurable
+        options[:app].config.middleware.insert_after Rack::Cors, Heimdall::Middleware
+      end
     end
 
     def stop
