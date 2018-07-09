@@ -1,7 +1,9 @@
-
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "heimdall_apm/version"
+require 'set'
+
+excluded_files = Set.new(%w(yarn.lock package.json app.rb config.ru populate.rb))
 
 Gem::Specification.new do |spec|
   spec.name          = "heimdall_apm"
@@ -13,7 +15,7 @@ Gem::Specification.new do |spec|
   spec.homepage      = "https://github.com/ccocchi/heimdall"
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
-    f.start_with?('test', 'src', 'bin', 'public') || f == 'yarn.lock' || f == 'package.json'
+    f.start_with?('test', 'src', 'bin', 'public') || excluded_files.include?(f)
   end
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }

@@ -1,5 +1,6 @@
 require 'heimdall_apm/vault'
 require 'heimdall_apm/recorder'
+require 'heimdall_apm/config'
 
 module HeimdallApm
   # Global context in which the agent is run. One context is assigned per
@@ -20,6 +21,10 @@ module HeimdallApm
 
     def recorder
       @recorder ||= ::HeimdallApm::Recorder.new
+    end
+
+    def interactive?
+      defined?(::Rails::Console) && $stdout.isatty && $stdin.isatty
     end
   end
 end

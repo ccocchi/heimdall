@@ -18,6 +18,9 @@ module HeimdallApm
     # Scope of this transaction (controller routes / job id)
     attr_accessor :scope
 
+    # Miscellaneous annotations made to the transaction. Must be a Hash.
+    attr_reader :annotations
+
     def initialize(context)
       @context      = context
       @root_segment = nil
@@ -25,6 +28,7 @@ module HeimdallApm
       @scope        = nil
       @stopped      = false
       @mode         = nil
+      @annotations  = {}
 
       @recorder     = context.recorder
       @vault        = context.vault
@@ -69,7 +73,6 @@ module HeimdallApm
 
     def record
       return unless root_segment
-      # return pretty_print
 
       VISITORS.each do |_, klass|
         visitor = klass.new(@vault, self)
@@ -80,6 +83,19 @@ module HeimdallApm
 
     def stopped?
       @stopped
+    end
+
+    def annotate(hsh)
+      @annotations.merge!(hsh)
+    end
+
+    # Allows InfluxDB's series name to be customize via annotations
+    def custom_series_name
+      annotations[:series_name]
+    end
+
+    def tags
+      annotations[:tags]
     end
 
     def web?

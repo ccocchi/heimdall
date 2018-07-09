@@ -27,6 +27,18 @@ module HeimdallApm
 
     def install(options = {})
       context.config = ::HeimdallApm::Config.new
+
+      if context.interactive?
+        HeimdallApm.logger.info 'Preventing agent to start in interactive mode'
+        return
+      end
+
+      if defined?(Sidekiq) && Sidekiq.server?
+        # TODO: handle custom instrumentation disabling
+        HeimdallApm.logger.info 'Preventing agent to start in sidekiq server'
+        return
+      end
+
       start(options)
     end
 
@@ -38,11 +50,12 @@ module HeimdallApm
       # TODO: use instruments manager
       require 'heimdall_apm/instruments/active_record'      if defined?(ActiveRecord)
       require 'heimdall_apm/instruments/action_controller'  if defined?(ActionController)
+      require 'heimdall_apm/instruments/elasticsearch'      if defined?(Elasticsearch)
 
       if (options[:app])
         require 'heimdall_apm/instruments/middleware'
         # TODO: make the position configurable
-        options[:app].config.middleware.insert_after Rack::Cors, Heimdall::Middleware
+        options[:app].config.middleware.insert_after Rack::Cors, HeimdallApm::Instruments::Middleware
       end
     end
 

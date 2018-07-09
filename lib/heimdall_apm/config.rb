@@ -1,5 +1,3 @@
-require 'yaml'
-
 module HeimdallApm
   class Config
     def initialize
@@ -8,7 +6,8 @@ module HeimdallApm
     end
 
     def value(key)
-      @loaded && @settings[key].strip.presence
+      # TODO: handle empty strings keys or boolean passed as strings
+      @loaded && @settings[key]
     end
     alias_method :[], :value
 
@@ -19,7 +18,7 @@ module HeimdallApm
 
     private
 
-    def load_file
+    def load_default_config
       @settings = Rails.application.config_for(:heimdall_apm)
       @loaded   = true
     rescue

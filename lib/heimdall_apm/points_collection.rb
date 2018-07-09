@@ -27,10 +27,12 @@ module HeimdallApm
     end
 
     def append(txn, metrics)
-      scope       = txn.scope
       timestamp   = txn.root_segment.stop_time
-      series_name = txn.web? ? 'app' : 'job'
+      series_name = txn.custom_series_name || (txn.web? ? 'app' : 'job')
       values      = Hash.new { |h, k| h[k] = 0 }
+
+      tags = txn.tags || {}
+      tags[:endpoint] = txn.scope
 
       metrics.each do |meta, stat|
         if ROOT_METRICS.include?(meta.type)
@@ -43,10 +45,13 @@ module HeimdallApm
         values['total_time'] += stat.total_exclusive_time
       end
 
+      # Segment time are in seconds, store them in milliseconds
+      values.transform_values! { |v| v * 1000 }
+
       @points << {
         series: series_name,
         timestamp: (timestamp * 1000).to_i,
-        tags: { endpoint: scope },
+        tags: tags,
         values: values
       }
     end

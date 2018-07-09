@@ -43,7 +43,7 @@ class QueryBuilder
     SELECT mean(*), count(total_time)
     FROM app
     WHERE endpoint = #{escape(params[:endpoint])} AND time >= now() - 3h
-    GROUP BY time(15m)
+    GROUP BY time(5m)
     SQL
   end
 
@@ -151,7 +151,7 @@ class ResultsParser
   end
 end
 
-class MyApp < Sinatra::Base
+class ServerApp < Sinatra::Base
   configure do
     disable :static
     enable  :cross_origin
@@ -194,5 +194,3 @@ class MyApp < Sinatra::Base
     Oj.dump(response)
   end
 end
-
-use MyApp
