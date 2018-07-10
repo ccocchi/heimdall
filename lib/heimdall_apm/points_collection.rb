@@ -12,7 +12,10 @@ module HeimdallApm
   class PointsCollection
     # Metrics we want to explicitely keep separated into measurements. Everything
     # else will be label as Ruby.
-    ROOT_METRICS = Set.new(['Sql', 'Elastic', 'Redis'])
+    ROOT_METRICS = ['Sql', 'Elastic', 'Redis'].map do |key|
+      downcased = key.downcase
+      [key, ["#{downcased}_time", "#{downcased}_count"]]
+    end.to_h
 
     def initialize
       @points = []
@@ -35,9 +38,11 @@ module HeimdallApm
       tags[:endpoint] = txn.scope
 
       metrics.each do |meta, stat|
-        if ROOT_METRICS.include?(meta.type)
-          key = -"#{meta.type.downcase}_time"
-          values[key] += stat.total_exclusive_time
+        if ROOT_METRICS.key?(meta.type)
+          time_key, count_key = ROOT_METRICS[meta.type]
+
+          values[time_key]  += stat.total_exclusive_time
+          values[count_key] += stat.call_count
         else
           values['ruby_time'] += stat.total_exclusive_time
         end

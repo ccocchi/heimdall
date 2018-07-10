@@ -45,8 +45,6 @@ module HeimdallApm
     def start(options = {})
       return unless context.config.value('enabled')
 
-      @background_thread = Thread.new { background_run }
-
       # TODO: use instruments manager
       require 'heimdall_apm/instruments/active_record'      if defined?(ActiveRecord)
       require 'heimdall_apm/instruments/action_controller'  if defined?(ActionController)
@@ -57,6 +55,8 @@ module HeimdallApm
         # TODO: make the position configurable
         options[:app].config.middleware.insert_after Rack::Cors, HeimdallApm::Instruments::Middleware
       end
+
+      @background_thread = Thread.new { background_run }
     end
 
     def stop
