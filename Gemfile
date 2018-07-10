@@ -4,9 +4,3 @@ source "https://rubygems.org"
 
 # Specify your gem's dependencies in heimdall.gemspec
 gemspec
-
-gem 'influxdb'
-gem 'oj'
-gem 'puma'
-gem 'sinatra'
-gem 'sinatra-cross_origin'

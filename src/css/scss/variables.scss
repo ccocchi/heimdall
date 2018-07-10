@@ -1,9 +1,0 @@
-$pond_water: #a8dbd8;
-$beach_storm: #E0E4CC;
-$giant_goldfish: #F38630;
-$light_grey: #797979;
-
-@mixin background-opacity($color, $opacity: 0.3) {
-  background: $color;
-  background: rgba($color, $opacity)
-}
