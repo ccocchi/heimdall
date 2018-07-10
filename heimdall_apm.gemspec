@@ -1,7 +1,6 @@
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "heimdall_apm/version"
-require 'set'
 
 Gem::Specification.new do |spec|
   spec.name          = "heimdall_apm"
