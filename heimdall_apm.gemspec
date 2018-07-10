@@ -7,6 +7,7 @@ Gem::Specification.new do |spec|
   spec.version       = HeimdallApm::VERSION
   spec.authors       = ["Christopher Cocchi-Perrier"]
   spec.email         = ["cocchi.c@gmail.com"]
+  spec.license       = 'LGPL-3.0'
 
   spec.summary       = "Open source monitoring for Rails applications"
   spec.homepage      = "https://github.com/ccocchi/heimdall"
