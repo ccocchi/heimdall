@@ -56,11 +56,13 @@ module HeimdallApm
         options[:app].config.middleware.insert_after Rack::Cors, HeimdallApm::Instruments::Middleware
       end
 
+      context.started!
       @background_thread = Thread.new { background_run }
     end
 
     def stop
       @stopped = true
+      context.stopped!
       if @background_thread.alive?
         @background_thread.wakeup
         @background_thread.join

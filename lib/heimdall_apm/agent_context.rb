@@ -11,6 +11,18 @@ module HeimdallApm
     # Global configuration object
     attr_writer :config
 
+    def started!
+      @started = true
+    end
+
+    def stopped!
+      @started = false
+    end
+
+    def started?
+      @started
+    end
+
     def config
       @config ||= ::HeimdallApm::Config.new
     end
