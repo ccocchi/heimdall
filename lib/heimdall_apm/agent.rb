@@ -56,11 +56,15 @@ module HeimdallApm
         options[:app].config.middleware.insert_after Rack::Cors, HeimdallApm::Instruments::Middleware
       end
 
+      # TODO: handle platform/webserver that don't handle this correctly
+      at_exit { stop }
+
       context.started!
       @background_thread = Thread.new { background_run }
     end
 
     def stop
+      HeimdallApm.logger.info 'Stopping agent...'
       @stopped = true
       context.stopped!
       if @background_thread.alive?
@@ -79,7 +83,11 @@ module HeimdallApm
       loop do
         now = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 
-        break if @stopped
+        if @stopped
+          # Commit data before stopping
+          reporting.call
+          break
+        end
 
         if now < next_time
           remaining = next_time - now
