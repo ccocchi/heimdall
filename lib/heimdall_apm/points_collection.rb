@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'set'
-
 module HeimdallApm
   # Convert metrics hash from requests into an collection of points we want to
   # track, but without aggregations and percentiles/std_dev calculations of same
@@ -51,7 +49,7 @@ module HeimdallApm
       end
 
       # Segment time are in seconds, store them in milliseconds
-      values.transform_values! { |v| v * 1000 }
+      values.transform_values! { |v| v.is_a?(Integer) ? v : v * 1000 }
 
       @points << {
         series: series_name,
