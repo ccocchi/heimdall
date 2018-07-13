@@ -1,0 +1,13 @@
+common: &default_settings
+  enabled: false
+
+production:
+  # Heimdall is disabled by default. Before, turning this on, make sure you
+  # have an InfluxDB instance running locally on the same VM as this code.
+  enabled: true
+
+  # Endpoints to ignore completely during monitoring (do not forget to add
+  # leading slash to your endpoints)
+  # ignore:
+  #   - /health/alive
+  #   - /admin

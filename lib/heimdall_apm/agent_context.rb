@@ -1,6 +1,9 @@
+require 'set'
+
 require 'heimdall_apm/vault'
 require 'heimdall_apm/recorder'
 require 'heimdall_apm/config'
+require 'heimdall_apm/uri_matcher'
 
 module HeimdallApm
   # Global context in which the agent is run. One context is assigned per
@@ -33,6 +36,10 @@ module HeimdallApm
 
     def recorder
       @recorder ||= ::HeimdallApm::Recorder.new
+    end
+
+    def ignored_uris
+      @ignored_uris ||= ::HeimdallApm::UriMatcher.new(config.value('ignore'))
     end
 
     def interactive?

@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.homepage      = "https://github.com/ccocchi/heimdall"
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
-    f.start_with?('test', 'bin')
+    f.start_with?('test', 'bin', 'config')
   end
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }

@@ -1,4 +1,4 @@
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
-require "heimdall"
+require 'heimdall_apm'
 
-require "minitest/autorun"
+require 'minitest/autorun'

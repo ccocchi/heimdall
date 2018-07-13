@@ -73,6 +73,7 @@ module HeimdallApm
 
     def record
       return unless root_segment
+      return if context.ignored_uris.match?(annotations[:uri])
 
       VISITORS.each do |_, klass|
         visitor = klass.new(@vault, self)
