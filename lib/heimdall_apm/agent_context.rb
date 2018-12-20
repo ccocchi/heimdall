@@ -1,4 +1,5 @@
 require 'set'
+require 'logger'
 
 require 'heimdall_apm/vault'
 require 'heimdall_apm/recorder'
@@ -28,6 +29,14 @@ module HeimdallApm
 
     def config
       @config ||= ::HeimdallApm::Config.new
+    end
+
+    def logger
+      @logger ||= begin
+        logger = Logger.new('log/heimdall_apm.log')
+        logger.level = config['log_level'].presence || :debug
+        logger
+      end
     end
 
     def vault

@@ -4,6 +4,7 @@ module HeimdallApm
       @context = context
     end
 
+    # TODO: make this configurable
     def influx
       @client ||= InfluxDB::Client.new("#{Rails.env}_metrics", time_precision: 'ms', retry: 0)
     end
@@ -13,10 +14,10 @@ module HeimdallApm
       if span && !span.points_collection.empty?
         influx.write_points(span.points_collection.to_a)
       else
-        HeimdallApm.logger.debug "Nothing to report"
+        @context.logger.debug "Nothing to report"
       end
     rescue => e
-      HeimdallApm.logger.error "#{e.message} during reporting to InfluxDB"
+      @context.logger.error "#{e.message} during reporting to InfluxDB"
     end
   end
 end

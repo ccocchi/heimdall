@@ -72,8 +72,10 @@ module HeimdallApm
     }
 
     def record
-      return unless root_segment
-      return if context.ignored_uris.match?(annotations[:uri])
+      # TODO: investigate on why mode can be nil sometimes
+      return unless root_segment && @mode
+      # TODO: doesn't feel like it should be done here
+      return if annotations[:uri] && @context.ignored_uris.match?(annotations[:uri])
 
       VISITORS.each do |_, klass|
         visitor = klass.new(@vault, self)

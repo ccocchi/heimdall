@@ -27,6 +27,8 @@ module HeimdallApm
       @points
     end
 
+    # TODO: this looks very custom, need to find a way to better map a txn and
+    # its segment into InfluxDB.
     def append(txn, metrics)
       timestamp   = txn.root_segment.stop_time
       series_name = txn.custom_series_name || (txn.web? ? 'app' : 'job')
@@ -47,6 +49,8 @@ module HeimdallApm
 
         values['total_time'] += stat.total_exclusive_time
       end
+
+      values['latency'] = txn.annotations[:latency] if txn.annotations[:latency]
 
       # Segment time are in seconds, store them in milliseconds
       values.transform_values! { |v| v.is_a?(Integer) ? v : v * 1000 }

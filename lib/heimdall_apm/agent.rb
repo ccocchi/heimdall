@@ -29,15 +29,15 @@ module HeimdallApm
       context.config = ::HeimdallApm::Config.new
 
       if context.interactive?
-        HeimdallApm.logger.info 'Preventing agent to start in interactive mode'
+        context.logger.info 'Preventing agent to start in interactive mode'
         return
       end
 
-      if defined?(Sidekiq) && Sidekiq.server?
-        # TODO: handle custom instrumentation disabling
-        HeimdallApm.logger.info 'Preventing agent to start in sidekiq server'
-        return
-      end
+      # if defined?(Sidekiq) && Sidekiq.server?
+      #   # TODO: handle custom instrumentation disabling
+      #   HeimdallApm.logger.info 'Preventing agent to start in sidekiq server'
+      #   return
+      # end
 
       start(options)
     end
@@ -46,9 +46,13 @@ module HeimdallApm
       return unless context.config.value('enabled')
 
       # TODO: use instruments manager
-      require 'heimdall_apm/instruments/active_record'      if defined?(ActiveRecord)
-      require 'heimdall_apm/instruments/action_controller'  if defined?(ActionController)
-      require 'heimdall_apm/instruments/elasticsearch'      if defined?(Elasticsearch)
+      if !defined?(Sidekiq) || !Sidekiq.server?
+        require 'heimdall_apm/instruments/active_record'      if defined?(ActiveRecord)
+        require 'heimdall_apm/instruments/action_controller'  if defined?(ActionController)
+        require 'heimdall_apm/instruments/elasticsearch'      if defined?(Elasticsearch)
+      end
+
+      require 'heimdall_apm/instruments/sidekiq' if defined?(Sidekiq) && Sidekiq.server?
 
       if (options[:app])
         require 'heimdall_apm/instruments/middleware'
@@ -64,7 +68,7 @@ module HeimdallApm
     end
 
     def stop
-      HeimdallApm.logger.info 'Stopping agent...'
+      context.logger.info 'Stopping agent...'
       @stopped = true
       context.stopped!
       if @background_thread.alive?
@@ -76,7 +80,7 @@ module HeimdallApm
     private
 
     def background_run
-      HeimdallApm.logger.info "Start background thread"
+      context.logger.info "Start background thread"
       reporting = ::HeimdallApm::Reporting.new(@context)
       next_time = Process.clock_gettime(Process::CLOCK_MONOTONIC) + DEFAULT_PUSH_INTERVAL
 
@@ -91,7 +95,7 @@ module HeimdallApm
 
         if now < next_time
           remaining = next_time - now
-          HeimdallApm.logger.debug "Sleeping for #{remaining}"
+          context.logger.debug { "Sleeping for #{remaining}" }
           sleep(remaining)
           next
         end
@@ -100,7 +104,7 @@ module HeimdallApm
         next_time = now + DEFAULT_PUSH_INTERVAL
       end
     rescue => e
-      HeimdallApm.logger.error e.message
+      context.logger.error e.message
     end
   end
 end
