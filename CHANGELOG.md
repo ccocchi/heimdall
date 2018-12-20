@@ -1,4 +1,5 @@
 # CHANGELOG
 
-## 0.1.3 (unreleased)
-  * Added configure option to completely ignore endpoints
+## 0.1.3
+  * Add configure option to completely ignore endpoints
+  * Add Sidekiq support
