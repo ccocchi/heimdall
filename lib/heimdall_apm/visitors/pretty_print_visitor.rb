@@ -1,14 +1,10 @@
 module HeimdallApm
   module Visitors
     class PrettyPrintVisitor
-      def initialize(scope)
+      def initialize(*args)
         @indent = 0
-        @scope  = scope
-
         @io     = File.open('log/heimdall_apm.log', 'ab')
         at_exit { @io.close }
-
-        pprint("Request #{@scope}:\n")
       end
 
       def before_children
@@ -22,7 +18,8 @@ module HeimdallApm
       def visit(segment)
         pprint("#{segment.type}/#{segment.name}\n")
         @indent += 2
-        pprint("duration=#{segment.total_exclusive_time}ms\n")
+        pprint("#{segment.data}\n")
+        pprint("duration=#{(segment.total_exclusive_time * 1000).round(1)}ms\n")
         @indent -= 2
       end
 

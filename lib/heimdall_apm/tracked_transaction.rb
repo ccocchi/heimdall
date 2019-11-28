@@ -68,7 +68,8 @@ module HeimdallApm
     end
 
     VISITORS = {
-      metrics: ::HeimdallApm::Visitors::RequestMetricsVisitor
+      #metrics: ::HeimdallApm::Visitors::RequestMetricsVisitor,
+      debug: ::HeimdallApm::Visitors::PrettyPrintVisitor
     }
 
     def record

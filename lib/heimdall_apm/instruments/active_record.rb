@@ -5,6 +5,7 @@ module HeimdallApm
         txn     = ::HeimdallApm::TransactionManager.current
         segment = ::HeimdallApm::Segment.new('Sql'.freeze, name)
         segment.data = payload[:sql]
+        segment.data = name
 
         txn.start_segment(segment)
       end
