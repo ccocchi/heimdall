@@ -6,7 +6,7 @@ module HeimdallApm
 
     # More specific name of the item
     #   Examples: "User#find", "find_by_sql", "users#index"
-    attr_reader :name
+    attr_accessor :name
 
     # Start and stop of this segment
     attr_reader :start_time, :stop_time
@@ -23,7 +23,7 @@ module HeimdallApm
     end
 
     def start
-      @start_time = Process.clock_gettime(Process::CLOCK_REALTIME)
+      @start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
     end
 
     # Lazy initialization of children to avoid bloating leaf segments
@@ -47,7 +47,7 @@ module HeimdallApm
     end
 
     def record_stop_time
-      @stop_time = Process.clock_gettime(Process::CLOCK_REALTIME)
+      @stop_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
     end
 
     def total_call_time

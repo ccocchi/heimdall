@@ -58,6 +58,8 @@ module HeimdallApm
         require 'heimdall_apm/instruments/middleware'
         # TODO: make the position configurable
         options[:app].config.middleware.insert_after Rack::Cors, HeimdallApm::Instruments::Middleware
+        # XXX: useful for debugging maybe useful in the future
+        # require 'heimdall_apm/instruments/middleware_detailed'
       end
 
       # TODO: handle platform/webserver that don't handle this correctly

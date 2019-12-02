@@ -1,3 +1,5 @@
+require 'heimdall_apm/utils/ar_metric_name'
+
 module HeimdallApm
   module ActiveRecord
     class Subscriber
@@ -5,14 +7,16 @@ module HeimdallApm
         txn     = ::HeimdallApm::TransactionManager.current
         segment = ::HeimdallApm::Segment.new('Sql'.freeze, name)
         segment.data = payload[:sql]
-        segment.data = name
 
         txn.start_segment(segment)
       end
 
       def finish(name, id, payload)
-        txn = ::HeimdallApm::TransactionManager.current
+        txn     = ::HeimdallApm::TransactionManager.current
+        segment = txn.current_segment
+
         txn.stop_segment
+        segment.name = Utils::ARMetricName.from_payload(payload) || 'other'.freeze
       end
     end
   end
