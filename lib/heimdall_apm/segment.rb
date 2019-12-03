@@ -23,7 +23,7 @@ module HeimdallApm
     end
 
     def start
-      @start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      @start_time = Process.clock_gettime(Process::CLOCK_REALTIME)
     end
 
     # Lazy initialization of children to avoid bloating leaf segments
@@ -47,7 +47,7 @@ module HeimdallApm
     end
 
     def record_stop_time
-      @stop_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      @stop_time = Process.clock_gettime(Process::CLOCK_REALTIME)
     end
 
     def total_call_time
